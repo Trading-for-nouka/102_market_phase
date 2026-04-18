@@ -193,7 +193,7 @@ def evaluate_market_phase():
                 "usdjpy_change": f"{usdjpy_change:.2%}",
                 "n225_dev25": f"{n225_dev25:.2%}" if pd.notna(n225_dev25) else "計算不可",
                 "crash_score":  f"{crash_score}/6",
-                "vol_surge":    vol_surge,
+                "vol_surge":    bool(vol_surge),
             },
             "updated": datetime.now(tz=__import__('zoneinfo').ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S JST")
         }
