@@ -1,0 +1,30 @@
+name: Market Sentinel Monitor
+
+on:
+  schedule:
+    - cron: '11 23 * * 0-4'   # 08:11 JST 朝の点検
+    - cron: '39 13 * * 1-5'   # 22:39 JST 米国市場開始後
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install yfinance pandas requests
+      - name: Run Emergency Sentinel
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: python emergency_sentinel.py
+      - name: Commit and Push Phase Result
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add market_phase.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update market phase [skip ci]"
+          git push
