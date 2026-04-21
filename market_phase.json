@@ -6,13 +6,13 @@
   "stats": {
     "adr": 127.3,
     "vix": 19.2,
-    "vix_sma3": 18.51,
-    "vix_surge": "4.5%",
-    "futures_pct": "0.28%",
-    "usdjpy_change": "-0.16%",
+    "vix_sma3": 18.52,
+    "vix_surge": "4.7%",
+    "futures_pct": "-0.04%",
+    "usdjpy_change": "-0.03%",
     "n225_dev25": "8.03%",
     "crash_score": "0/6",
     "vol_surge": false
   },
-  "updated": "2026-04-21 16:31:25 JST"
+  "updated": "2026-04-21 23:01:31 JST"
 }
