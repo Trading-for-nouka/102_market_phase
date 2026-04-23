@@ -5,14 +5,14 @@
   "vol_note": "",
   "stats": {
     "adr": 127.3,
-    "vix": 19.5,
-    "vix_sma3": 19.29,
-    "vix_surge": "8.5%",
-    "futures_pct": "-1.17%",
-    "usdjpy_change": "0.17%",
+    "vix": 19.2,
+    "vix_sma3": 19.2,
+    "vix_surge": "7.0%",
+    "futures_pct": "-0.77%",
+    "usdjpy_change": "0.13%",
     "n225_dev25": "6.87%",
     "crash_score": "0/6",
     "vol_surge": false
   },
-  "updated": "2026-04-23 16:31:22 JST"
+  "updated": "2026-04-23 23:01:45 JST"
 }
