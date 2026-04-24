@@ -1,18 +1,18 @@
 {
-  "phase": "REBOUND",
-  "description": "🔄【リバウンド】底打ち反転の兆し",
-  "level_note": "反転期待: 5MA回復 + ADR上昇 + VIX低下 (25日乖離:7.4%)",
+  "phase": "RISK_OFF",
+  "description": "⚠️【警戒】地合い悪化",
+  "level_note": "守り優先: 200MA 割れ / ADR:127 / 25日乖離:6.4%",
   "vol_note": "",
   "stats": {
-    "adr": 150.0,
-    "vix": 19.2,
-    "vix_sma3": 19.13,
-    "vix_surge": "9.7%",
-    "futures_pct": "1.49%",
-    "usdjpy_change": "0.05%",
-    "n225_dev25": "7.41%",
+    "adr": 127.3,
+    "vix": 18.7,
+    "vix_sma3": 18.98,
+    "vix_surge": "7.0%",
+    "futures_pct": "1.94%",
+    "usdjpy_change": "-0.09%",
+    "n225_dev25": "6.42%",
     "crash_score": "0/6",
     "vol_surge": false
   },
-  "updated": "2026-04-24 23:01:25 JST"
+  "updated": "2026-04-25 05:59:28 JST"
 }
