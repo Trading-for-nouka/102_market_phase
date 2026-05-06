@@ -5,17 +5,17 @@
   "vol_note": "",
   "last_crash_date": null,
   "stats": {
-    "adr": 89.0,
+    "adr": 88.9,
     "adr_source": "universe496",
-    "vix": 17.1,
-    "vix_sma3": 17.58,
-    "vix_surge": "-9.2%",
-    "futures_pct": "2.02%",
-    "usdjpy_change": "-0.69%",
+    "vix": 17.4,
+    "vix_sma3": 17.69,
+    "vix_surge": "-7.5%",
+    "futures_pct": "2.93%",
+    "usdjpy_change": "-0.53%",
     "n225_dev25": "2.86%",
     "n225_10d_change": "-0.12%",
     "crash_score": "0/7",
     "vol_surge": false
   },
-  "updated": "2026-05-06 23:03:13 JST"
+  "updated": "2026-05-07 06:02:11 JST"
 }
