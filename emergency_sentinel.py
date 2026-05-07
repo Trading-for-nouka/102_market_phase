@@ -278,7 +278,7 @@ def main():
     vol_line = f"\n┗ {res['vol_note']}" if res["vol_note"] else ""
 
     msg = (
-        f"{phase_icon} **市場判定: {res['phase']}**\n"
+        f"[102_market_phase] {phase_icon} **市場判定: {res['phase']}**\n"
         f"**{res['description']}**\n"
         f"┗ {res['level_note']}{vol_line}\n"
         f"```\n"
