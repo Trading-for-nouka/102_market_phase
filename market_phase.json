@@ -1,21 +1,21 @@
 {
   "phase": "REBOUND",
   "description": "🔄【リバウンド】底打ち反転の兆し",
-  "level_note": "反転期待: 5MA回復 + ADR上昇 + VIX低下 (25日乖離:6.4%)",
+  "level_note": "反転期待: 5MA回復 + ADR上昇 + VIX低下 (25日乖離:6.9%)",
   "vol_note": "",
   "last_crash_date": null,
   "stats": {
-    "adr": 93.7,
+    "adr": 95.2,
     "adr_source": "universe496",
-    "vix": 17.1,
-    "vix_sma3": 17.18,
-    "vix_surge": "0.5%",
-    "futures_pct": "0.00%",
-    "usdjpy_change": "0.18%",
-    "n225_dev25": "6.37%",
-    "n225_10d_change": "4.46%",
+    "vix": 17.4,
+    "vix_sma3": 17.28,
+    "vix_surge": "2.2%",
+    "futures_pct": "1.40%",
+    "usdjpy_change": "0.20%",
+    "n225_dev25": "6.92%",
+    "n225_10d_change": "5.02%",
     "crash_score": "0/7",
     "vol_surge": false
   },
-  "updated": "2026-05-08 12:47:57 JST"
+  "updated": "2026-05-08 16:33:23 JST"
 }
