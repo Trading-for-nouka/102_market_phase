@@ -42,7 +42,10 @@ def calculate_score(df, macro_phase, return_breakdown=False):
 
     # --- RSI（売られ過ぎ度）最大30点 ---
     rsi = ta.rsi(close, length=14).iloc[-1]
-    if rsi <= 30:
+    if pd.isna(rsi):
+        print("[WARN] RSI計算不可（データ不足の可能性）")
+        s = 0
+    elif rsi <= 30:
         s = 30
     elif rsi <= 40:
         s = 15
