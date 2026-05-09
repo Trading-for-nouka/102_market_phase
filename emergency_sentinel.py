@@ -1,6 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import os
+import tempfile
 import requests
 import json
 from datetime import datetime
@@ -62,8 +63,8 @@ def load_last_crash_date() -> str | None:
         try:
             with open("market_phase.json", "r", encoding="utf-8") as f:
                 return json.load(f).get("last_crash_date")
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[WARN] market_phase.json 読み込み失敗（CRASH記憶リセット）: {e}")
     return None
 
 
@@ -296,8 +297,10 @@ def main():
 
     notify_discord(msg)
 
-    with open("market_phase.json", "w", encoding="utf-8") as f:
+    tmp_path = "market_phase.json.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, "market_phase.json")
 
     print(msg)
 
