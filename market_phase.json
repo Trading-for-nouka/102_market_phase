@@ -8,14 +8,14 @@
     "adr": 97.2,
     "adr_source": "universe496",
     "vix": 18.2,
-    "vix_sma3": 17.49,
-    "vix_surge": "-0.4%",
-    "futures_pct": "-1.78%",
-    "usdjpy_change": "0.15%",
+    "vix_sma3": 17.5,
+    "vix_surge": "-0.3%",
+    "futures_pct": "-1.30%",
+    "usdjpy_change": "0.13%",
     "n225_dev25": "5.77%",
     "n225_10d_change": "3.11%",
     "crash_score": "0/7",
     "vol_surge": false
   },
-  "updated": "2026-05-11 16:33:08 JST"
+  "updated": "2026-05-11 23:03:40 JST"
 }
