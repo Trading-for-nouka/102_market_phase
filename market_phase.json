@@ -7,15 +7,15 @@
   "stats": {
     "adr": 90.6,
     "adr_source": "universe496",
-    "vix": 16.8,
-    "vix_sma3": 16.76,
-    "vix_surge": "-5.7%",
+    "vix": 16.6,
+    "vix_sma3": 16.7,
+    "vix_surge": "-6.7%",
     "futures_pct": "0.00%",
-    "usdjpy_change": "-0.01%",
+    "usdjpy_change": "-0.07%",
     "n225_dev25": "6.82%",
     "n225_10d_change": "4.39%",
     "crash_score": "0/7",
     "vol_surge": false
   },
-  "updated": "2026-05-25 16:33:18 JST"
+  "updated": "2026-05-25 23:02:56 JST"
 }
