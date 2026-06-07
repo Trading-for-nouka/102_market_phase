@@ -1,21 +1,21 @@
 {
-  "phase": "WARN",
-  "description": "🟠【要注意】CRASH予備軍シグナル",
-  "level_note": "警戒: 2/7点 (VIX週次急騰:40% / 先物:-5.5%)",
+  "phase": "RISK_OFF",
+  "description": "⚠️【警戒】地合い悪化",
+  "level_note": "守り優先: 200MA 割れ / ADR:100 / 25日乖離:4.6%",
   "vol_note": "",
   "last_crash_date": null,
   "stats": {
     "adr": 99.9,
     "adr_source": "universe496",
     "vix": 21.5,
-    "vix_sma3": 17.66,
-    "vix_surge": "40.4%",
-    "futures_pct": "-5.53%",
-    "usdjpy_change": "0.22%",
-    "n225_dev25": "5.02%",
-    "n225_10d_change": "5.13%",
-    "crash_score": "2/7",
+    "vix_sma3": 19.47,
+    "vix_surge": "34.0%",
+    "futures_pct": "0.00%",
+    "usdjpy_change": "0.14%",
+    "n225_dev25": "4.56%",
+    "n225_10d_change": "2.19%",
+    "crash_score": "0/7",
     "vol_surge": false
   },
-  "updated": "2026-06-07 13:47:21 JST"
+  "updated": "2026-06-08 06:00:44 JST"
 }
