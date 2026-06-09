@@ -1,21 +1,21 @@
 {
   "phase": "RISK_OFF",
   "description": "⚠️【警戒】地合い悪化",
-  "level_note": "守り優先: 200MA 割れ / ADR:97 / 25日乖離:2.5%",
+  "level_note": "守り優先: 200MA 割れ / ADR:97 / 25日乖離:0.4%",
   "vol_note": "",
   "last_crash_date": null,
   "stats": {
     "adr": 97.5,
     "adr_source": "universe496",
-    "vix": 17.6,
-    "vix_sma3": 19.35,
-    "vix_surge": "11.7%",
-    "futures_pct": "0.72%",
-    "usdjpy_change": "-0.08%",
-    "n225_dev25": "2.50%",
-    "n225_10d_change": "0.65%",
+    "vix": 19.9,
+    "vix_sma3": 20.1,
+    "vix_surge": "26.0%",
+    "futures_pct": "-1.60%",
+    "usdjpy_change": "0.02%",
+    "n225_dev25": "0.41%",
+    "n225_10d_change": "-1.49%",
     "crash_score": "0/7",
     "vol_surge": false
   },
-  "updated": "2026-06-09 23:04:03 JST"
+  "updated": "2026-06-10 06:00:48 JST"
 }
