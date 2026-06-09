@@ -1,6 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import os
+import time
 import tempfile
 import requests
 import json
@@ -68,35 +69,67 @@ def load_last_crash_date() -> str | None:
     return None
 
 
+def fetch_history(ticker: str, period: str = "2y", tries: int = 3) -> pd.DataFrame | None:
+    """
+    ★修正7: 1銘柄ずつ取得（リトライ付き）。
+    一括ダウンロード（yf.download複数銘柄）はGitHub ActionsのIPだと
+    Yahooに制限されて空データが返ることがあるため、銘柄別に分けて取得する。
+    """
+    last_err = None
+    for attempt in range(1, tries + 1):
+        try:
+            h = yf.Ticker(ticker).history(period=period, auto_adjust=True, repair=True)
+            if h is not None and not h.empty and "Close" in h.columns:
+                h = h.copy()
+                # タイムゾーンを外して日付に揃える（銘柄間で結合するため）
+                h.index = pd.to_datetime(h.index).tz_localize(None).normalize()
+                h = h[~h.index.duplicated(keep="last")]
+                return h
+            last_err = "空データ"
+        except Exception as e:
+            last_err = e
+        print(f"[RETRY {attempt}/{tries}] {ticker}: {last_err}")
+        time.sleep(5)
+    print(f"[NG] {ticker}: 取得失敗（{last_err}）")
+    return None
+
+
 def evaluate_market_phase():
     try:
         # --- 0. データ取得 ---
-        tickers_close = ["^N225", "1306.T", "^GSPC", "^VIX", "NIY=F", "JPY=X"]
         # ★修正1: auto_adjust=True を明示 + repair=True で分割・100倍系のデータ異常を自動補正
         #   （1306.T は 2026/4/1 に受益権1:10分割。未調整データだと200MAが恒久的に「割れ」誤判定になる）
-        data = yf.download(tickers_close, period="2y", progress=False, threads=False,
-                           auto_adjust=True, repair=True)
-
-        if isinstance(data.columns, pd.MultiIndex):
-            close = data["Close"]
-        else:
-            close = data
-
-        if close.empty:
-            raise ValueError("Closeデータが空です")
-
-        volume_raw    = yf.download("1306.T", period="2y", progress=False)
-        volume_series = volume_raw["Volume"].squeeze().ffill()
-
+        # ★修正7: 6銘柄一括 → 1銘柄ずつリトライ取得（GitHub Actionsでの空データ対策）
         core_tickers  = ["^N225", "1306.T", "^GSPC", "^VIX"]
         extra_tickers = ["NIY=F", "JPY=X"]
 
-        if isinstance(data.columns, pd.MultiIndex):
-            data = data["Close"].copy()
+        histories = {}
+        for t in core_tickers + extra_tickers:
+            h = fetch_history(t)
+            if h is not None:
+                histories[t] = h
+
+        # コア4銘柄はどれが欠けても判定不能 → どの銘柄が失敗したか明示してエラー
+        missing_core = [t for t in core_tickers if t not in histories]
+        if missing_core:
+            raise ValueError(f"必須データの取得失敗: {', '.join(missing_core)}"
+                             f"（Yahoo側の一時制限の可能性。次回実行で復旧する場合が多い）")
+
+        data = pd.DataFrame({t: h["Close"] for t, h in histories.items()}).sort_index()
+
+        # 先物・為替は欠けても続行（該当のCRASH条件が判定対象外になるだけ）
+        for t in extra_tickers:
+            if t not in data.columns:
+                print(f"[WARN] {t} 取得失敗 → 関連CRASH条件は今回スキップ")
+                data[t] = float("nan")
+
+        # 1306.T の出来高は取得済みヒストリーから流用（旧コードの二重ダウンロードを解消）
+        volume_series = histories["1306.T"]["Volume"].ffill()
 
         data.loc[:, extra_tickers] = data[extra_tickers].ffill()
         data.loc[:, core_tickers]  = data[core_tickers].ffill()
         data = data.dropna(subset=core_tickers)
+        close = data  # 出来高計算の参照用（旧コードとの互換）
 
         if len(data) < 200:
             raise ValueError(f"有効データが少なすぎます（{len(data)}行）")
