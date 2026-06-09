@@ -72,7 +72,10 @@ def evaluate_market_phase():
     try:
         # --- 0. データ取得 ---
         tickers_close = ["^N225", "1306.T", "^GSPC", "^VIX", "NIY=F", "JPY=X"]
-        data = yf.download(tickers_close, period="2y", progress=False, threads=False)
+        # ★修正1: auto_adjust=True を明示 + repair=True で分割・100倍系のデータ異常を自動補正
+        #   （1306.T は 2026/4/1 に受益権1:10分割。未調整データだと200MAが恒久的に「割れ」誤判定になる）
+        data = yf.download(tickers_close, period="2y", progress=False, threads=False,
+                           auto_adjust=True, repair=True)
 
         if isinstance(data.columns, pd.MultiIndex):
             close = data["Close"]
@@ -109,8 +112,25 @@ def evaluate_market_phase():
         # 中期累積下落：10営業日で-8%超（じわじわ下落の捕捉）
         n225_10d_change = (n225_now / n225.iloc[-11]) - 1 if len(n225) >= 11 else 0.0
 
-        topix_now   = data["1306.T"].iloc[-1]
-        topix_200ma = data["1306.T"].rolling(200).mean().iloc[-1]
+        # ★修正2: トレンド判定（200MA）に異常検知を追加
+        #   1306.T の日次変動が±30%超 → 分割等の未調整データとみなし N225 で代替
+        topix_series = data["1306.T"]
+        topix_jump = topix_series.pct_change(fill_method=None).abs().max()
+
+        if pd.notna(topix_jump) and topix_jump > 0.30:
+            trend_series = n225
+            trend_source = "N225(1306異常検知)"
+        else:
+            trend_series = topix_series
+            trend_source = "1306.T"
+
+        trend_now   = float(trend_series.iloc[-1])
+        trend_200ma = float(trend_series.rolling(200).mean().iloc[-1])
+        trend_200ma_prev = float(trend_series.rolling(200).mean().iloc[-21])  # 約1ヶ月前のMA
+        ma200_rising = trend_200ma > trend_200ma_prev
+
+        # ★修正3: 1%の緩衝帯（200MAちょうど付近のバタつき防止）
+        below_200 = trend_now < trend_200ma * 0.99
 
         futures_pct  = data["NIY=F"].pct_change(fill_method=None).iloc[-1]
         sp500_change = data["^GSPC"].pct_change(fill_method=None).iloc[-1]
@@ -177,7 +197,10 @@ def evaluate_market_phase():
         vol_note = "📦出来高急増あり" if vol_surge else ""
 
         # --- 2b. CRASHメモリ（直近7日以内のCRASH状態をWARN以上で保持）---
-        today_str    = datetime.now().strftime("%Y-%m-%d")
+        # ★修正6: GitHub Actions は UTC なので JST で日付を取る（CRASHメモリの日付ズレ防止）
+        from zoneinfo import ZoneInfo
+        now_jst   = datetime.now(tz=ZoneInfo("Asia/Tokyo"))
+        today_str = now_jst.strftime("%Y-%m-%d")
         last_crash_date   = load_last_crash_date()
         crash_memory_active = False
 
@@ -185,7 +208,7 @@ def evaluate_market_phase():
             last_crash_date = today_str
         elif last_crash_date:
             prev_dt  = datetime.strptime(last_crash_date, "%Y-%m-%d")
-            days_ago = (datetime.now() - prev_dt).days
+            days_ago = (now_jst.replace(tzinfo=None) - prev_dt).days
             if days_ago <= 7:
                 crash_memory_active = True
 
@@ -208,7 +231,7 @@ def evaluate_market_phase():
                 note = f"警戒: {crash_score}/7点 ({' / '.join(crash_reasons)})"
 
         # ③ REBOUND（底打ち条件 + VIX低下 + 25日乖離が深すぎない）
-        elif (topix_now < topix_200ma or adr_now < 70) and \
+        elif (below_200 or adr_now < 70) and \
              (n225_now > n225_ma5 and adr_now > adr_prev and vix_is_falling) and \
              (n225_dev25 > -0.15):
             phase = "REBOUND"
@@ -216,10 +239,22 @@ def evaluate_market_phase():
             note  = f"反転期待: 5MA回復 + ADR上昇 + VIX低下 (25日乖離:{n225_dev25:.1%})"
 
         # ④ RISK_OFF（200MA割れ または ADR低迷）
-        elif topix_now < topix_200ma or (adr_now < 70 and vix_now > 20):
-            phase = "RISK_OFF"
-            desc  = "⚠️【警戒】地合い悪化"
-            note  = f"守り優先: 200MA {'割れ' if topix_now < topix_200ma else 'OK'} / ADR:{adr_now:.0f} / 25日乖離:{n225_dev25:.1%}"
+        # ★修正4: 200MA割れでも内部指標がすべて健全なら NEUTRAL に格下げ＋データ異常を疑う警告
+        elif below_200 or (adr_now < 70 and vix_now > 20):
+            internals_healthy = (adr_now > 90) and (n225_dev25 > 0) and (vix_now < 20)
+            if below_200 and internals_healthy:
+                phase = "NEUTRAL"
+                desc  = "🧐【均衡】200MA下だが内部指標は健全"
+                note  = (f"⚠️整合性アラート: {trend_source} {trend_now:,.1f} < 200MA {trend_200ma:,.1f} "
+                         f"なのに ADR:{adr_now:.0f}/VIX:{vix_now:.0f}/乖離:{n225_dev25:.1%} は正常。"
+                         f"データ異常（分割未調整等）の可能性を確認してください")
+            else:
+                phase = "RISK_OFF"
+                desc  = "⚠️【警戒】地合い悪化"
+                # ★修正5: 「割れ」だけでなく実際の価格とMAの値をログに残す（異常の早期発見用）
+                note  = (f"守り優先: {trend_source} {trend_now:,.1f} vs 200MA {trend_200ma:,.1f}"
+                         f"({'上向き' if ma200_rising else '下向き'}) / "
+                         f"ADR:{adr_now:.0f} / 25日乖離:{n225_dev25:.1%}")
 
         # ⑤ BULL（ADR安定 かつ VIX低水準）
         elif 80 <= adr_now <= 120 and vix_now < 25:
@@ -240,6 +275,10 @@ def evaluate_market_phase():
             "vol_note":        vol_note,
             "last_crash_date": last_crash_date,
             "stats": {
+                "trend_source":    trend_source,
+                "trend_now":       round(trend_now, 1),
+                "trend_200ma":     round(trend_200ma, 1),
+                "ma200_rising":    bool(ma200_rising),
                 "adr":             round(adr_now, 1),
                 "adr_source":      adr_source,
                 "vix":             round(vix_now, 1),
